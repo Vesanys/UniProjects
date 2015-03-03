@@ -39,10 +39,10 @@ Esercizio 3
 Si vuole realizzare un servizio Web per la gestione della raccolta di preferenze da parte di un utente 
 su film. Il servizio prevede le seguenti pagine:
 
-    * un form in cui l’utente può inserire il titolo del film (una stringa) e la sua valutazione numerica 
-      (si può assumere un valore nell’intervallo 1-5 ma non è necessario prevedere il codice per il 
-      controllo). Il form permette l’inserimento di una valutazione per volta e l’inserimento di più 
-      valutazioni avviene inviando più volte il form in una stessa sessione.
+    * un form in cui l’utente può inserire il titolo del film (una stringa) e la sua valutazione 
+      numerica(si può assumere un valore nell’intervallo 1-5 ma non è necessario prevedere il codice 
+      per il controllo). Il form permette l’inserimento di una valutazione per volta e l’inserimento 
+      di più valutazioni avviene inviando più volte il form in una stessa sessione.
     * una pagina di raccolta delle valutazioni dei film che memorizza sul server le valutazioni fatte col 
       form del punto 1. Si assume che se l’utente invia più di una volta una valutazione per lo stesso 
       film nella stessa sessione, la valutazione è uguale al massimo dei valori inseriti.
@@ -81,9 +81,9 @@ Il servizio prevede le seguenti pagine:
       specificando i gol delle due squadre in due campi di testo. Il form permette l'inserimento di un 
       risultato per volta e l'inserimento di più risultati avviene inviando più volte il form in una stessa
       sessione.
-    * una pagina di raccolta dei risultati che memorizza sul server le partite inserite col form del punto 1. 
-      Si assume che se l'utente invia più di una volta un risultato per la stessa partita nella stessa 
-      sessione, il punteggio memorizzato è l'ultimo inserito.
+    * una pagina di raccolta dei risultati che memorizza sul server le partite inserite col form del 
+      punto 1. Si assume che se l'utente invia più di una volta un risultato per la stessa partita nella 
+      stessa sessione, il punteggio memorizzato è l'ultimo inserito.
     * una pagina di riepilogo che stampa la classifica ordinata e calcolata assegnando 3 punti per la 
       vittoria, 1 per il pareggio e 0 per la sconfitta.
 
