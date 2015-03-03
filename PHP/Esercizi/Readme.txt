@@ -1,11 +1,11 @@
 Esercizio 1 
 
-Si vuole realizzare un servizio Web per la gestione della prenotazione di un insieme di eventi da parte di un utente. 
-Il servizio prevede le seguenti pagine:
+Si vuole realizzare un servizio Web per la gestione della prenotazione di un insieme di eventi da parte 
+di un utente. Il servizio prevede le seguenti pagine:
 
-    * un form in cui l’utente può inserire il nome dell’evento (una stringa) e il numero di persone per cui effettua 
-      la prenotazione. Il form permette l’inserimento di una prenotazione per volta e l’inserimento di più prenotazioni 
-      avviene inviando più volte il form in una stessa sessione.
+    * un form in cui l’utente può inserire il nome dell’evento (una stringa) e il numero di persone per 
+      cui effettua la prenotazione. Il form permette l’inserimento di una prenotazione per volta e 
+      l’inserimento di più prenotazioni avviene inviando più volte il form in una stessa sessione.
     * una pagina di raccolta delle prenotazioni che memorizza sul server le prenotazioni fatte col form del punto 1. 
       Si assume che se l’utente invia più di una volta il numero di prenotazioni per lo stesso evento nella stessa 
       sessione, il numero di persone viene cumulato.
