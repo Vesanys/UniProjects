@@ -29,15 +29,16 @@ Ogni coppia di lettereviene crittografata nel seguente modo:
 
 Il main legge da tastiera il messaggio da crittografare l'equivalente di LET US MEET AT NOON nell'esempio),
 chiama la function di cifratura (passando come parametro il messaggio e la matrice di sostituzione),che 
-restituisce il testo cifrato, visualizza il testo cifrato, chiama la function di decifratura, passando come 
-parametro il testo cifrato e la matrice di sostituzione, visualizza il messaggio decifrato, che deve 
-coincidere con il messaggio di partenza. Usare solo lettere maiuscole. Usare le stringhe per rappresentare 
-il messaggio e il testo crittografato e decrittografato. Fare una versione alternativa del main, in cui la 
-matrice di sostituzione e' una permutazione casuale della matrice precedente, usando la function rand(), 
-il cui prototipo e' in <stdlib.h>, per generare gli interi casuali per lo scambio a coppie di elementi della
-matrice. Si ricorda che, se numero_casuale e' dichiarata di tipo int, allora la chiamata 
-numero_casuale=rand()%(n+1); genera un numero casuale intero (distribuzione uniforme) nell'insieme (0,1,2,..n). 
-Usare sempre la srand() per rendere automatica la scelta iniziale del seed della sequenza di numeri casuali. 
+restituisce il testo cifrato, visualizza il testo cifrato, chiama la function di decifratura, passando 
+come parametro il testo cifrato e la matrice di sostituzione, visualizza il messaggio decifrato, che 
+deve coincidere con il messaggio di partenza. Usare solo lettere maiuscole. Usare le stringhe per 
+rappresentare il messaggio e il testo crittografato e decrittografato. Fare una versione alternativa del 
+main, in cui la matrice di sostituzione e' una permutazione casuale della matrice precedente, usando la 
+function rand(), il cui prototipo e' in <stdlib.h>, per generare gli interi casuali per lo scambio a 
+coppie di elementi della matrice. Si ricorda che, se numero_casuale e' dichiarata di tipo int, allora la 
+chiamata numero_casuale=rand()%(n+1); genera un numero casuale intero (distribuzione uniforme) nell'insieme 
+(0,1,2,..n). Usare sempre la srand() per rendere automatica la scelta iniziale del seed della sequenza di 
+numeri casuali. 
 
 Progetto Gestore:
 
