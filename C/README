@@ -36,21 +36,21 @@ rappresentare il messaggio e il testo crittografato e decrittografato. Fare una 
 main, in cui la matrice di sostituzione e' una permutazione casuale della matrice precedente, usando la 
 function rand(), il cui prototipo e' in <stdlib.h>, per generare gli interi casuali per lo scambio a 
 coppie di elementi della matrice. Si ricorda che, se numero_casuale e' dichiarata di tipo int, allora la 
-chiamata numero_casuale=rand()%(n+1); genera un numero casuale intero (distribuzione uniforme) nell'insieme 
-(0,1,2,..n). Usare sempre la srand() per rendere automatica la scelta iniziale del seed della sequenza di 
-numeri casuali. 
+chiamata numero_casuale=rand()%(n+1); genera un numero casuale intero (distribuzione uniforme) 
+nell'insieme (0,1,2,..n). Usare sempre la srand() per rendere automatica la scelta iniziale del seed della
+sequenza di numeri casuali. 
 
 Progetto Gestore:
 
-Si vuole simulare  l'archivio  di  chiamate  di  un  gestore telefonico. L'archivio risulta mensile (31 giorni).
-Ogni giorno vengono effettuate al massimo 10 chiamate e il costo al minuto di una chiamata è di 10 centesimi. 
-Ogni chiamata è  identificata  dal numero  chiamante,  il numero ricevente e la  durata della chiamata.  
-Provvedere  all' implementazione  dell' algoritmo  per  la   simulazione  dell' archivio.  Permettere,inoltre, 
-all' utente di : 
+Si vuole simulare  l'archivio  di  chiamate  di  un  gestore telefonico. L'archivio risulta mensile 
+(31 giorni). Ogni giorno vengono effettuate al massimo 10 chiamate e il costo al minuto di una chiamata è 
+di 10 centesimi. Ogni chiamata è  identificata  dal numero  chiamante,  il numero ricevente e la  durata 
+della chiamata. Provvedere  all' implementazione  dell' algoritmo  per  la   simulazione  dell' archivio.  
+Permettere,inoltre, all' utente di : 
 
        *  Inserire una chiamata in un dato giorno 
-       *  Dato un numero telefonico visualizzare tutte le chiamate con le relative informazioni in un singolo 
-          giorno 
+       *  Dato un numero telefonico visualizzare tutte le chiamate con le relative informazioni in un 
+          singolo giorno 
        *  Dato un numero telefonico vedere il costo totale delle chiamate. 
        *  Visualizzare le informazioni relative alla chiamata più costosa. 
        
