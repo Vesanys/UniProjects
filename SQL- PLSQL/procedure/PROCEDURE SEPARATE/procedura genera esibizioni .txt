@@ -1,0 +1,44 @@
+--PROCEDURA 1:
+--questa procedura è attivata da un membro dello staff o dall'amministratore e permette di generare il calendario delle esibizioni per una 
+-- data serata
+
+
+CREATE OR REPLACE PROCEDURE genera_esibizioni (DATA_ESIBIZION in DATE) is 
+
+MINUTI_CANZONE NUMBER(2,0);
+NUM_ESIB NUMBER(2,0):=0;
+ORA_ULTIMA_ESIB DATE;
+DATA_ULTIMA_ESIB DATE;
+DATA_PROVA DATE;
+cursor c1 is select * from artista;
+temp c1%rowtype;
+
+BEGIN
+open c1;
+fetch c1 into temp;
+
+
+while (c1%found or to_char(ora_ultima_esib,'hh24:mi') <'23:00' ) loop
+
+SELECT COUNT(*) INTO NUM_ESIB FROM ESIBIZIONE;
+SELECT MAX(ORA_INIZIO_ESIBIZIONE) INTO ORA_ULTIMA_ESIB FROM ESIBIZIONE WHERE DATA_ESIBIZIONE=DATA_ESIBIZION;
+SELECT MAX(DATA_ESIBIZIONE) INTO DATA_ULTIMA_ESIB FROM ESIBIZIONE;
+
+IF(NUM_ESIB=0 or data_esibizion > data_ultima_esib)  THEN  INSERT INTO ESIBIZIONE VALUES(TO_DATE(TO_CHAR(DATA_ESIBIZION,'HH24:MI'),'HH24:MI'),TEMP.ID_CANZONE_ARTISTA,DATA_ESIBIZION);	
+commit;
+ELSE
+SELECT MINUTI INTO MINUTI_CANZONE FROM CANZONE JOIN ESIBIZIONE ON ID_CANZONE_ESIBIZIONE=ID_CANZONE
+	WHERE ORA_INIZIO_ESIBIZIONE=(SELECT MAX(ORA_INIZIO_ESIBIZIONE) FROM ESIBIZIONE
+                                     WHERE DATA_ESIBIZIONE=DATA_ESIBIZION) AND DATA_ESIBIZIONE=DATA_ESIBIZION; 
+
+
+data_prova := ora_ultima_esib + NUMTODSINTERVAL(minuti_canzone,'minute') + NUMTODSINTERVAL(12,'minute');
+INSERT INTO ESIBIZIONE VALUES(to_date(to_char(DATA_prova,'hh24:mi'),'hh24:mi'),TEMP.ID_CANZONE_ARTISTA,DATA_ESIBIZION);
+commit;
+end if;
+commit;	
+fetch c1 into temp;
+end loop;
+close c1;
+end;
+/

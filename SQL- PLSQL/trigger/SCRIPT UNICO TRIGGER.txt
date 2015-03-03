@@ -1,0 +1,374 @@
+--TRIGGER 1:
+-- questo trigger permette di non inserire un solista se è già stato
+-- inserito come leader di una band
+
+CREATE OR REPLACE TRIGGER CONTROLLO_solista
+BEFORE INSERT OR UPDATE ON solista
+FOR EACH ROW
+DECLARE
+CURSOR C3 IS SELECT * FROM band;
+
+errore  exception;
+
+TEMP C3%ROWTYPE;
+
+BEGIN
+OPEN C3;
+FETCH C3 INTO TEMP;
+
+WHILE (C3%FOUND) LOOP
+IF(temp.codice_fiscale_band= :NEW.codice_fiscale_solista)THEN RAISE errore;
+end if;
+fetch c3 INTO TEMP;
+end loop;
+CLOSE C3;
+
+exception
+when errore then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire un solista se e gia registrato come leader di una band');
+end;
+/
+
+--TRIGGER 2:
+-- questo trigger permette di non inserire un leader di una band se è già stato
+-- inserito come staff
+
+CREATE OR REPLACE TRIGGER CONTROLLO_band_staff
+BEFORE INSERT OR UPDATE ON band
+FOR EACH ROW
+DECLARE
+CURSOR C3 IS SELECT * FROM staff;
+
+errore  exception;
+
+TEMP C3%ROWTYPE;
+
+BEGIN
+OPEN C3;
+FETCH C3 INTO TEMP;
+
+
+WHILE (C3%FOUND) LOOP
+IF(temp.codice_fiscale_staff= :NEW.codice_fiscale_band)THEN RAISE errore;
+end if;
+fetch c3 INTO TEMP;
+end loop;
+CLOSE C3;
+exception
+when errore then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire un leader di una band se e gia registrato come membro dello staff');
+end;
+/
+
+
+--TRIGGER 3:
+--l'età minima per la partecipazione all'evento da parte degli artisti è di 18 anni
+
+CREATE OR REPLACE TRIGGER CONTROLLO_ETA
+BEFORE INSERT OR UPDATE ON PERSONA
+FOR EACH ROW
+DECLARE
+errore_eta exception;
+DIFF_ETA NUMBER(4,0) :=MONTHS_BETWEEN(CURRENT_DATE,:new.DATA_DI_NASCITA);
+
+BEGIN
+IF DIFF_ETA<216 THEN
+DBMS_OUTPUT.PUT_LINE('DIFFERENZA ETA '||DIFF_ETA);
+ RAISE errore_eta;
+END IF;
+EXCEPTION
+WHEN errore_eta THEN
+RAISE_APPLICATION_ERROR(-20050,'LA PERSONA CHE SI STA TENTANDO DI INSERIRE E MINORENNE');
+END CONTROLLO_ETA;
+/
+
+--TRIGGER 4:
+-- questo trigger permette di non inserire un membro della giuria se è già stato
+-- inserito come artista
+
+CREATE OR REPLACE TRIGGER CONTROLLO_giuria
+BEFORE INSERT OR UPDATE ON giuria_tecnica
+FOR EACH ROW
+DECLARE
+CURSOR C3 IS SELECT * FROM artista;
+
+errore  exception;
+
+TEMP C3%ROWTYPE;
+
+BEGIN
+OPEN C3;
+FETCH C3 INTO TEMP;
+
+
+WHILE (C3%FOUND) LOOP
+IF(temp.codice_fiscale_artista= :NEW.codice_fiscale_giuria_tecnica)THEN RAISE errore;
+end if;
+fetch c3 INTO TEMP;
+end loop;
+CLOSE C3;
+exception
+when errore then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire un membro dello giuria se è gia un artista');
+end;
+/
+
+
+--TRIGGER 5:
+-- L’inizio di un esibizione non può anticipare l’inizio di una serata
+
+CREATE OR REPLACE TRIGGER CONTROLLO_ESIBIZIONE
+BEFORE INSERT OR UPDATE ON ESIBIZIONE
+FOR EACH ROW
+DECLARE
+CURSOR C3 IS SELECT * FROM SERATA;
+errore_inizio_esibizione  exception;
+TEMP C3%ROWTYPE;
+BEGIN
+OPEN C3;
+FETCH C3 INTO TEMP;
+WHILE (C3%FOUND) LOOP
+IF(to_char(:NEW.ORA_INIZIO_ESIBIZIONE,'HH24:MI')) < TO_CHAR(TEMP.DATA_SERATA, 'HH24:MI')THEN RAISE errore_inizio_esibizione;
+end if;
+fetch c3 INTO TEMP;
+end loop;
+CLOSE C3;
+exception
+when errore_inizio_esibizione then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire poiche la serata non e ancora iniziata');
+end CONTROLLO_ESIBIZIONE;
+/
+
+--TRIGGER 6:
+-- Il numero massimo di posti disponibili a serata è 200
+
+CREATE OR REPLACE TRIGGER CONTROLLO_POSTI
+BEFORE INSERT ON POSTO
+FOR EACH ROW
+DECLARE
+CONTAPOSTI NUMBER:=0;
+ERRORE_POSTI_ESAURITI EXCEPTION;
+BEGIN
+SELECT COUNT(*) INTO CONTAPOSTI FROM POSTO;
+IF (CONTAPOSTI>199) THEN RAISE ERRORE_POSTI_ESAURITI;
+end IF;
+EXCEPTION
+WHEN ERRORE_POSTI_ESAURITI THEN
+RAISE_APPLICATION_ERROR(-20305, ' Non è possibile inserire, posti esauriti');
+end CONTROLLO_POSTI;
+/
+
+--TRIGGER 7:
+-- questo trigger permette di non inserire un leader di una band se è già stato
+-- inserito come solista
+
+CREATE OR REPLACE TRIGGER CONTROLLO_band
+BEFORE INSERT OR UPDATE ON band
+FOR EACH ROW
+DECLARE
+CURSOR C3 IS SELECT * FROM solista;
+
+errore_ARTISTA  exception;
+
+TEMP C3%ROWTYPE;
+
+BEGIN
+OPEN C3;
+FETCH C3 INTO TEMP;
+
+
+WHILE (C3%FOUND) LOOP
+IF(temp.codice_fiscale_solista= :NEW.codice_fiscale_band)THEN RAISE errore_ARTISTA;
+end if;
+fetch c3 INTO TEMP;
+end loop;
+CLOSE C3;
+exception
+when errore_ARTISTA then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire un leader di una band se e gia registrato come solista');
+end;
+/
+
+--TRIGGER 8:
+-- questo trigger permette di non inserire un solista se è già stato
+-- inserito come staff
+
+CREATE OR REPLACE TRIGGER CONTROLLO_solista_staff
+BEFORE INSERT OR UPDATE ON solista
+FOR EACH ROW
+DECLARE
+CURSOR C3 IS SELECT * FROM staff;
+
+errore  exception;
+
+TEMP C3%ROWTYPE;
+
+BEGIN
+OPEN C3;
+FETCH C3 INTO TEMP;
+
+
+WHILE (C3%FOUND) LOOP
+IF(temp.codice_fiscale_staff= :NEW.codice_fiscale_solista)THEN RAISE errore;
+end if;
+fetch c3 INTO TEMP;
+end loop;
+CLOSE C3;
+exception
+when errore then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire un solista se è gia un membro dello staff');
+end;
+/
+
+--TRIGGER 9:
+-- questo trigger permette di non inserire un membro dello staffse è già stato
+-- inserito come artista
+
+CREATE OR REPLACE TRIGGER CONTROLLO_staff_artista
+BEFORE INSERT OR UPDATE ON staff
+FOR EACH ROW
+DECLARE
+CURSOR C3 IS SELECT * FROM artista;
+
+errore  exception;
+
+TEMP C3%ROWTYPE;
+
+BEGIN
+OPEN C3;
+FETCH C3 INTO TEMP;
+
+
+WHILE (C3%FOUND) LOOP
+IF(temp.codice_fiscale_artista= :NEW.codice_fiscale_staff)THEN RAISE errore;
+end if;
+fetch c3 INTO TEMP;
+end loop;
+CLOSE C3;
+exception
+when errore then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire un membro dello staff se è gia un artista');
+end;
+/
+
+
+--TRIGGER 10:
+-- questo trigger permette di non inserire un membro dello staff se è già stato
+-- inserito come leader di una band
+
+CREATE OR REPLACE TRIGGER CONTROLLO_staff_band
+BEFORE INSERT OR UPDATE ON staff
+FOR EACH ROW
+DECLARE
+CURSOR C3 IS SELECT * FROM band;
+
+errore  exception;
+
+TEMP C3%ROWTYPE;
+
+BEGIN
+OPEN C3;
+FETCH C3 INTO TEMP;
+
+
+WHILE (C3%FOUND) LOOP
+IF(temp.codice_fiscale_band= :NEW.codice_fiscale_staff)THEN RAISE errore;
+end if;
+fetch c3 INTO TEMP;
+end loop;
+CLOSE C3;
+exception
+when errore then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire un lmembro dello staff se e gia registrato come leader di una band');
+end;
+/
+
+--TRIGGER 11:
+-- questo trigger permette di non inserire un membro dello staff se è già stato
+-- inserito come solista
+
+CREATE OR REPLACE TRIGGER CONTROLLO_staff_solista
+BEFORE INSERT OR UPDATE ON staff
+FOR EACH ROW
+DECLARE
+CURSOR C3 IS SELECT * FROM solista;
+
+errore  exception;
+
+TEMP C3%ROWTYPE;
+
+BEGIN
+OPEN C3;
+FETCH C3 INTO TEMP;
+
+
+WHILE (C3%FOUND) LOOP
+IF(temp.codice_fiscale_solista= :NEW.codice_fiscale_staff)THEN RAISE errore;
+end if;
+fetch c3 INTO TEMP;
+end loop;
+CLOSE C3;
+exception
+when errore then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire un membro dello staff se è gia un solista');
+end;
+/
+
+--TRIGGER 12:
+-- questo trigger permette di non inserire un artista se è già stato
+-- inserito come staff
+
+CREATE OR REPLACE TRIGGER CONTROLLO_artisti
+BEFORE INSERT OR UPDATE ON artista
+FOR EACH ROW
+DECLARE
+CURSOR C3 IS SELECT * FROM staff;
+errore  exception;
+TEMP C3%ROWTYPE;
+BEGIN
+OPEN C3;
+FETCH C3 INTO TEMP;
+
+
+WHILE (C3%FOUND) LOOP
+IF(temp.codice_fiscale_staff= :NEW.codice_fiscale_artista)THEN RAISE errore;
+end if;
+fetch c3 INTO TEMP;
+end loop;
+CLOSE C3;
+
+exception
+when errore then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire un artista se è gia un componente dello staff');
+end;
+/
+
+--TRIGGER 13:
+-- questo trigger permette di non inserire un artista se è già stato
+-- inserito come membro della giuria
+
+CREATE OR REPLACE TRIGGER CONTROLLO_artisti
+BEFORE INSERT OR UPDATE ON artista
+FOR EACH ROW
+DECLARE
+cursor c4 is select * from giuria_tecnica;
+errore2 exception;
+temp2 c4%rowtype;
+BEGIN
+open c4;
+fetch c4 into temp2;
+
+WHILE (C4%FOUND) LOOP
+IF(temp2.codice_fiscale_giuria_tecnica= :NEW.codice_fiscale_artista)THEN RAISE errore2;
+end if;
+fetch c4 INTO TEMP2;
+end loop;
+CLOSE C4;
+
+
+
+exception
+when errore2 then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire un artista se è gia un componente della giuria');
+end;
+/

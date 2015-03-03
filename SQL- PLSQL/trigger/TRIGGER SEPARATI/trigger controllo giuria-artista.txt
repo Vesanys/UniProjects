@@ -1,0 +1,31 @@
+CREATE OR REPLACE TRIGGER CONTROLLO_giuria
+BEFORE INSERT OR UPDATE ON giuria_tecnica
+FOR EACH ROW
+DECLARE
+CURSOR C3 IS SELECT * FROM artista;
+
+errore  exception;
+
+TEMP C3%ROWTYPE;
+
+BEGIN
+OPEN C3;
+FETCH C3 INTO TEMP;
+
+
+WHILE (C3%FOUND) LOOP
+IF(temp.codice_fiscale_artista= :NEW.codice_fiscale_giuria_tecnica)THEN RAISE errore;
+end if;
+fetch c3 INTO TEMP;
+end loop;
+CLOSE C3;
+
+
+
+
+exception
+when errore then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire un membro dello giuria se è gia un artista');
+
+end;
+/

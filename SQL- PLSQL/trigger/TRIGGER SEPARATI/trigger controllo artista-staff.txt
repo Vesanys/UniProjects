@@ -1,0 +1,28 @@
+--TRIGGER 12:
+-- questo trigger permette di non inserire un artista se è già stato
+-- inserito come staff
+
+CREATE OR REPLACE TRIGGER CONTROLLO_artisti
+BEFORE INSERT OR UPDATE ON artista
+FOR EACH ROW
+DECLARE
+CURSOR C3 IS SELECT * FROM staff;
+errore  exception;
+TEMP C3%ROWTYPE;
+BEGIN
+OPEN C3;
+FETCH C3 INTO TEMP;
+
+
+WHILE (C3%FOUND) LOOP
+IF(temp.codice_fiscale_staff= :NEW.codice_fiscale_artista)THEN RAISE errore;
+end if;
+fetch c3 INTO TEMP;
+end loop;
+CLOSE C3;
+
+exception
+when errore then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire un artista se è gia un componente dello staff');
+end;
+/

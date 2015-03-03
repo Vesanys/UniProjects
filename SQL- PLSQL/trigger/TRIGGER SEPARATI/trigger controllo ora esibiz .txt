@@ -1,0 +1,25 @@
+
+--TRIGGER 4:
+-- L’inizio di un esibizione non può anticipare l’inizio di una serata
+
+CREATE OR REPLACE TRIGGER CONTROLLO_ESIBIZIONE
+BEFORE INSERT OR UPDATE ON ESIBIZIONE
+FOR EACH ROW
+DECLARE
+CURSOR C3 IS SELECT * FROM SERATA;
+errore_inizio_esibizione  exception;
+TEMP C3%ROWTYPE;
+BEGIN
+OPEN C3;
+FETCH C3 INTO TEMP;
+WHILE (C3%FOUND) LOOP
+IF(to_char(:NEW.ORA_INIZIO_ESIBIZIONE,'HH24:MI')) < TO_CHAR(TEMP.DATA_SERATA, 'HH24:MI')THEN RAISE errore_inizio_esibizione;
+end if;
+fetch c3 INTO TEMP;
+end loop;
+CLOSE C3;
+exception
+when errore_inizio_esibizione then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire poiche la serata non e ancora iniziata');
+end CONTROLLO_ESIBIZIONE;
+/

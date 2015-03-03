@@ -1,0 +1,17 @@
+Progetto Rover:
+
+il progetto consiste nello sviluppare un software per la gestione di un rover attraverso 
+un'interfaccia grafica interamente scritta in Java. Il rover prevede delle API native scritte 
+nel linguaggio di programmazione C per cui è stato reso necessario l'utilizzo della tecnologia JNI 
+per effettuare un collegamento tra i due linguaggi di programmazione ovvero Java e C.
+
+Progetto Domotica:
+
+il progetto consiste nello sviluppo di un software che permette ad un utente di gestire vari device 
+di uso quotidiano in una casa. Un utente si connette ad un server GAC il quale invia la lista dei 
+dispositivi "governabili", l'utente sceglie il dispositivo da utilizzare ed invia la scelta al server 
+il quale smista i vari comandi ai devices permettendo l'effettivo controllo degli stessi.
+
+Progetto Rover versione Client-Server:
+E' un'estensione del progetto rover adattato al protocollo Client-Server che permette anche l'utilizzo di
+varie features connesse al rover (eventuale braccio, sensoristica varia).

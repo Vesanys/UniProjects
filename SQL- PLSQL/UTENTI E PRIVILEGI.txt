@@ -1,0 +1,95 @@
+-- UTENTE AMMINISTRATORE
+
+Create user amministratore identified by admin;
+Grant create session to amministratore; 
+Grant all privileges to amministratore;
+CONN amministratore/admin;
+
+
+-- UTENTE ORGANIZZATORE
+
+Create user organizzatore identified by organizzatore;
+Grant create session to organizzatore; 
+Grant insert, select on amministratore.giuria_tecnica to organizzatore;
+Grant select on amministratore.artista  to organizzatore;
+Grant insert, select on amministratore.negozio_musicale to organizzatore;
+Grant insert, select on amministratore.distributore to organizzatore;
+Grant insert, select on amministratore.premio to organizzatore;
+Grant insert, select on amministratore.canzone to organizzatore;
+Grant select on amministratore.solista to organizzatore;
+Grant select on amministratore.band to organizzatore;
+Grant EXECUTE ON genera_esibizioni to organizzatore;
+Grant insert, select on amministratore.serata to organizzatore;
+Grant insert, select on amministratore.album to organizzatore;
+Grant insert,select on amministratore.buono_spesa to organizzatore;
+Grant insert,select on amministratore.pacchetto to organizzatore;
+Grant insert,select on amministratore.posto to organizzatore;
+Grant insert,select on amministratore.biglietto_venduto to organizzatore;
+Grant insert,select on amministratore.num_telefonico_distributore to organizzatore;
+Grant insert,select on amministratore.num_telefono_negozio to organizzatore;
+Grant insert, select on amministratore.e_autore to organizzatore;
+Grant EXECUTE ON vincitore to organizzatore;
+Geant select on classifica_pubblico to visitatore;
+Geant select on classifica_giuria to visitatore;
+Create user staff identified by userstaff;
+Grant create session to staff; 
+Grant select on amministratore.artista to staff;
+Grant select on amministratore.solista to staff;
+Grant select on amministratore.band to staff;
+Grant select on amministratore.posto to staff;
+Grant select on amministratore.giuria_tecnica to staff;
+Grant select on amministratore.premio to staff;
+Grant select on amministratore.serata to staff;
+Grant select on amministratore.esibizione to staff;
+Grant EXECUTE ON genera_esibizioni to organizzatore;
+Grant select on amministratore.negozio_musicale to staff;
+Grant select on amministratore.esibizione to staff;
+Grant select on amministratore.distributore to staff;
+Grant select on amministratore.biglietto_venduto to staff;
+Grant select on amministratore.pacchetto to staff;
+Grant select on amministratore.num_telefonico_distributore to staff;
+Grant select on amministratore.num_telefono_negozio to staff;
+Grant EXECUTE ON vincitore to organizzatore;
+Geant select on classifica_pubblico to visitatore;
+Geant select on classifica_giuria to visitatore;
+
+--UTENTE ARTISTA
+
+Create user artista identified by artista;
+Grant create session to artista; 
+Grant select,update on amministratore.artista to artista;
+Grant select,update on amministratore.solista to artista;
+Grant select,update on amministratore.band to artista;
+Grant select on amministratore.giuria_tecnica to artista;
+Grant select on amministratore.premio to artista;
+Grant select on amministratore.serata to artista;
+Grant select on amministratore.esibizione to artista;
+Grant select on amministratore.negozio_musicale to artista;
+Grant select on artista.esibizione to artista;
+Grant select on artista.giudica_g to artista;
+Grant select on artista.giudica_p to artista;
+Grant select,update on amministratore.canzone to artista;
+Geant select on classifica_pubblico to visitatore;
+Geant select on classifica_giuria to visitatore;
+
+--UTENTE PUBBLICO
+
+Create user pubblico identified by visitatore;
+Grant create session to pubblico; 
+Grant select on amministratore.artista to visitatore;
+Grant select on amministratore.solista to visitatore;
+Grant select on amministratore.band to visitatore;
+Grant select on amministratore.giuria_tecnica to visitatore;
+Grant select on amministratore.premio to visitatore;
+Grant select on amministratore.serata to visitatore;
+Grant select on amministratore.esibizione to visitatore;
+Grant select on amministratore.negozio_musicale to visitatore;
+Grant select on amministratore.negozio_musicale to visitatore;
+Grant select on amministratore.giudica_p to visitatore;
+Grant select on amministratore.giudica_g to visitatore;
+Grant select on amministratore.canzone to visitatore;
+Grant select on amministratore.album to visitatore;
+Grant select on amministratore.buono_spesa to visitatore;
+Geant select on classifica_pubblico to visitatore;
+Geant select on classifica_giuria to visitatore;
+

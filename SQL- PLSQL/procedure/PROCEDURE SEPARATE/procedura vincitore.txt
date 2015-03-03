@@ -1,0 +1,59 @@
+--Procedura 3:
+--questa procedura restituisce la canzone vincitrice del contest
+
+CREATE OR REPLACE PROCEDURE VINCITORE IS 
+id_vincitore_giuria number (5,0):=0;
+id_vincitore_posto number(5,0):=0;
+voti1 number(5,0):=0;
+voti2 number(5,0):=0;
+titolo_giuria canzone.titolo%type;
+titolo_posto canzone.titolo%type;
+errore exception;
+
+BEGIN
+SELECT  ID_CANZONE_ESIBIZIONE into id_vincitore_giuria
+		   FROM GIUDICA_G JOIN ESIBIZIONE on ora_inizio_giudica_g=ora_inizio_esibizione AND DATA_GIUDICA_G=DATA_ESIBIZIONE
+		   GROUP BY ID_CANZONE_ESIBIZIONE                   
+       		   HAVING avg(voto_giudica_g)=( select max(T.C) 
+                                                        FROM ( select avg(voto_giudica_g) AS C
+                                                                                FROM GIUDICA_G JOIN ESIBIZIONE on ora_inizio_giudica_g=ora_inizio_esibizione
+                                         		     AND DATA_GIUDICA_G=DATA_ESIBIZIONE
+                                                                                GROUP BY ID_CANZONE_ESIBIZIONE) T);
+
+
+
+                                        				
+SELECT  ID_CANZONE_ESIBIZIONE into id_vincitore_posto
+		   FROM GIUDICA_P JOIN ESIBIZIONE on ora_inizio_giudica_P=ora_inizio_esibizione AND DATA_GIUDICA_P=DATA_ESIBIZIONE
+		   GROUP BY ID_CANZONE_ESIBIZIONE                   
+       		   HAVING avg(voto_giudica_P)=( select max(T.C)  
+                                                        FROM ( select avg(voto_giudica_P) AS C
+                                                                     		FROM GIUDICA_P JOIN ESIBIZIONE on ora_inizio_giudica_P=ora_inizio_esibizione
+                                         		     	AND DATA_GIUDICA_P=DATA_ESIBIZIONE
+                                                                                             GROUP BY ID_CANZONE_ESIBIZIONE) T);
+
+
+
+select avg(voto_giudica_P) into voti1
+FROM GIUDICA_P JOIN ESIBIZIONE on ora_inizio_giudica_P=ora_inizio_esibizione AND DATA_GIUDICA_P=DATA_ESIBIZIONE
+where id_canzone_esibizione= id_vincitore_posto;
+
+select avg(voto_giudica_g) into voti2
+FROM GIUDICA_g JOIN ESIBIZIONE on ora_inizio_giudica_g=ora_inizio_esibizione AND DATA_GIUDICA_g=DATA_ESIBIZIONE
+where id_canzone_esibizione= id_vincitore_giuria;
+
+
+
+
+if (voti1>voti2) then  select titolo into titolo_posto from canzone where id_canzone=id_vincitore_posto;
+		dbms_output.put_line('il vincitore del PASSION MUSICA CONTEST e: ' || titolo_posto);
+
+else 
+	select titolo into titolo_giuria from canzone where id_canzone=id_vincitore_giuria;
+	dbms_output.put_line('il vincitore del PASSION MUSICA CONTEST e: ' || titolo_giuria);
+end if;
+
+end vincitore;
+/
+
+

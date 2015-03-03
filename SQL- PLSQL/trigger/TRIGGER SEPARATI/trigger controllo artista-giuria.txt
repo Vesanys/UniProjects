@@ -1,0 +1,29 @@
+--TRIGGER 13:
+-- questo trigger permette di non inserire un artista se è già stato
+-- inserito come membro della giuria
+
+CREATE OR REPLACE TRIGGER CONTROLLO_artisti
+BEFORE INSERT OR UPDATE ON artista
+FOR EACH ROW
+DECLARE
+cursor c4 is select * from giuria_tecnica;
+errore2 exception;
+temp2 c4%rowtype;
+BEGIN
+open c4;
+fetch c4 into temp2;
+
+WHILE (C4%FOUND) LOOP
+IF(temp2.codice_fiscale_giuria_tecnica= :NEW.codice_fiscale_artista)THEN RAISE errore2;
+end if;
+fetch c4 INTO TEMP2;
+end loop;
+CLOSE C4;
+
+
+
+exception
+when errore2 then
+RAISE_APPLICATION_ERROR(-20035, 'Non e possibile inserire un artista se è gia un componente della giuria');
+end;
+/

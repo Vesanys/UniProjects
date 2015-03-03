@@ -1,0 +1,161 @@
+--PROCEDURA 1:
+--questa procedura è attivata da un membro dello staff o dall'amministratore e permette di generare il calendario delle esibizioni per una 
+-- data serata
+
+
+CREATE OR REPLACE PROCEDURE genera_esibizioni (DATA_ESIBIZION in DATE) is 
+
+MINUTI_CANZONE NUMBER(2,0);
+NUM_ESIB NUMBER(2,0):=0;
+ORA_ULTIMA_ESIB DATE;
+DATA_ULTIMA_ESIB DATE;
+DATA_PROVA DATE;
+cursor c1 is select * from artista;
+temp c1%rowtype;
+
+BEGIN
+open c1;
+fetch c1 into temp;
+
+
+while (c1%found or to_char(ora_ultima_esib,'hh24:mi') <'23:00' ) loop
+
+SELECT COUNT(*) INTO NUM_ESIB FROM ESIBIZIONE;
+SELECT MAX(ORA_INIZIO_ESIBIZIONE) INTO ORA_ULTIMA_ESIB FROM ESIBIZIONE WHERE DATA_ESIBIZIONE=DATA_ESIBIZION;
+SELECT MAX(DATA_ESIBIZIONE) INTO DATA_ULTIMA_ESIB FROM ESIBIZIONE;
+
+IF(NUM_ESIB=0 or data_esibizion > data_ultima_esib)  THEN  INSERT INTO ESIBIZIONE VALUES(TO_DATE(TO_CHAR(DATA_ESIBIZION,'HH24:MI'),'HH24:MI'),TEMP.ID_CANZONE_ARTISTA,DATA_ESIBIZION);	
+commit;
+ELSE
+SELECT MINUTI INTO MINUTI_CANZONE FROM CANZONE JOIN ESIBIZIONE ON ID_CANZONE_ESIBIZIONE=ID_CANZONE
+	WHERE ORA_INIZIO_ESIBIZIONE=(SELECT MAX(ORA_INIZIO_ESIBIZIONE) FROM ESIBIZIONE
+                                     WHERE DATA_ESIBIZIONE=DATA_ESIBIZION) AND DATA_ESIBIZIONE=DATA_ESIBIZION; 
+
+
+data_prova := ora_ultima_esib + NUMTODSINTERVAL(minuti_canzone,'minute') + NUMTODSINTERVAL(12,'minute');
+INSERT INTO ESIBIZIONE VALUES(to_date(to_char(DATA_prova,'hh24:mi'),'hh24:mi'),TEMP.ID_CANZONE_ARTISTA,DATA_ESIBIZION);
+commit;
+end if;
+commit;	
+fetch c1 into temp;
+end loop;
+close c1;
+end;
+/
+
+-- PROCEDURA 2: 
+-- la procedura sotto implementata viene effettuata da un membro dello staff e permette di iscrivere un nuovo artista
+
+       
+
+CREATE OR REPLACE PROCEDURE ISCRIZIONE_ARTISTA (	
+						NOME_NUOVA_PERSONA IN VARCHAR,
+					            	COGNOME_NUOVO_ARTISTA IN VARCHAR,
+						SESSO IN CHAR,
+						CODICE_FISCALE_NUOVO_ARTISTA IN CHAR,
+						DATA_DI_NASCITA_NUOVA_PERSONA IN DATE,
+ 					              	ID_CANZONE_NUOVO_ARTISTA IN NUMBER,
+					            	TITOLO_NUOVA_CANZONE IN VARCHAR,
+					           	GENERE_NUOVA_CANZONE IN VARCHAR,
+					           	MINUTI_NUOVA_CANZONE IN NUMBER,
+					          	SECONDI_NUOVA_CANZONE IN NUMBER,
+						PASS_NUOVO_ARTISTA IN number,
+					          	NUOVO_MUSICISTA IN CHAR,
+						TIPO_STRUMENTO IN VARCHAR,
+						NOME_BAND IN VARCHAR,
+						NUMERO_COMPONENTI IN NUMBER,
+						E_SOLISTA NUMBER,
+						E_BAND NUMBER)
+								IS
+									NUMERO_ARTISTI NUMBER(2,0);
+									POSTI_DISPONIBILI NUMBER(2,0);
+									ERRORE EXCEPTION;
+
+BEGIN
+SELECT COUNT(*) INTO NUMERO_ARTISTI FROM PERSONA JOIN ARTISTA ON CODICE_FISCALE_PERSONA=CODICE_FISCALE_ARTISTA;
+
+DBMS_OUTPUT.PUT_LINE(' IL NUMERO DI ARTISTI GIA ISCRITTI E '|| NUMERO_ARTISTI);
+POSTI_DISPONIBILI:=(20 - NUMERO_ARTISTI);
+IF (NUMERO_ARTISTI<20) THEN
+DBMS_OUTPUT.PUT_LINE(' ISCRIZIONE ANCORA DISPONIBILE PER '|| POSTI_DISPONIBILI);
+	INSERT INTO PERSONA VALUES(NOME_NUOVA_PERSONA,COGNOME_NUOVO_ARTISTA,SESSO,CODICE_FISCALE_NUOVO_ARTISTA,DATA_DI_NASCITA_NUOVA_PERSONA);
+	INSERT INTO CANZONE VALUES(ID_CANZONE_NUOVO_ARTISTA,NULL,TITOLO_NUOVA_CANZONE,GENERE_NUOVA_CANZONE,MINUTI_NUOVA_CANZONE,SECONDI_NUOVA_CANZONE);
+	INSERT INTO ARTISTA VALUES(CODICE_FISCALE_NUOVO_ARTISTA,ID_CANZONE_NUOVO_ARTISTA,PASS_NUOVO_ARTISTA);
+                      
+                            IF (E_SOLISTA>0) THEN INSERT INTO SOLISTA VALUES(CODICE_FISCALE_NUOVO_ARTISTA,GENERE_NUOVA_CANZONE,NUOVO_MUSICISTA,TIPO_STRUMENTO);       		    
+                           ELSE IF(E_BAND>0) THEN INSERT INTO BAND VALUES(CODICE_FISCALE_NUOVO_ARTISTA,NOME_BAND,GENERE_NUOVA_CANZONE,NUMERO_COMPONENTI);
+                  		    END IF;
+END IF;
+               		
+
+
+ELSE RAISE ERRORE;
+END IF;
+
+
+COMMIT;
+ROLLBACK;
+
+EXCEPTION
+WHEN ERRORE THEN
+RAISE_APPLICATION_ERROR(-20119, 'ERRORE LA PROCEDURA DI INSERIMENTO DI UN NUOVO ARTISTA NON E AVVENUTA CON SUCCESSO POICHE I POSTI SONO ESAURITI');
+END ISCRIZIONE_ARTISTA;
+/
+
+--Procedura 3:
+--questa procedura restituisce la canzone vincitrice del contest
+
+CREATE OR REPLACE PROCEDURE VINCITORE IS 
+id_vincitore_giuria number (5,0):=0;
+id_vincitore_posto number(5,0):=0;
+voti1 number(5,0):=0;
+voti2 number(5,0):=0;
+titolo_giuria canzone.titolo%type;
+titolo_posto canzone.titolo%type;
+errore exception;
+
+BEGIN
+SELECT  ID_CANZONE_ESIBIZIONE into id_vincitore_giuria
+		   FROM GIUDICA_G JOIN ESIBIZIONE on ora_inizio_giudica_g=ora_inizio_esibizione AND DATA_GIUDICA_G=DATA_ESIBIZIONE
+		   GROUP BY ID_CANZONE_ESIBIZIONE                   
+       		   HAVING avg(voto_giudica_g)=( select max(T.C) 
+                                                        FROM ( select avg(voto_giudica_g) AS C
+                                                                                FROM GIUDICA_G JOIN ESIBIZIONE on ora_inizio_giudica_g=ora_inizio_esibizione
+                                         		     AND DATA_GIUDICA_G=DATA_ESIBIZIONE
+                                                                                GROUP BY ID_CANZONE_ESIBIZIONE) T);
+
+
+
+                                        				
+SELECT  ID_CANZONE_ESIBIZIONE into id_vincitore_posto
+		   FROM GIUDICA_P JOIN ESIBIZIONE on ora_inizio_giudica_P=ora_inizio_esibizione AND DATA_GIUDICA_P=DATA_ESIBIZIONE
+		   GROUP BY ID_CANZONE_ESIBIZIONE                   
+       		   HAVING avg(voto_giudica_P)=( select max(T.C)  
+                                                        FROM ( select avg(voto_giudica_P) AS C
+                                                                     		FROM GIUDICA_P JOIN ESIBIZIONE on ora_inizio_giudica_P=ora_inizio_esibizione
+                                         		     	AND DATA_GIUDICA_P=DATA_ESIBIZIONE
+                                                                                             GROUP BY ID_CANZONE_ESIBIZIONE) T);
+
+
+
+select avg(voto_giudica_P) into voti1
+FROM GIUDICA_P JOIN ESIBIZIONE on ora_inizio_giudica_P=ora_inizio_esibizione AND DATA_GIUDICA_P=DATA_ESIBIZIONE
+where id_canzone_esibizione= id_vincitore_posto;
+
+select avg(voto_giudica_g) into voti2
+FROM GIUDICA_g JOIN ESIBIZIONE on ora_inizio_giudica_g=ora_inizio_esibizione AND DATA_GIUDICA_g=DATA_ESIBIZIONE
+where id_canzone_esibizione= id_vincitore_giuria;
+
+
+
+
+if (voti1>voti2) then  select titolo into titolo_posto from canzone where id_canzone=id_vincitore_posto;
+		dbms_output.put_line('il vincitore del PASSION MUSICA CONTEST e: ' || titolo_posto);
+
+else 
+	select titolo into titolo_giuria from canzone where id_canzone=id_vincitore_giuria;
+	dbms_output.put_line('il vincitore del PASSION MUSICA CONTEST e: ' || titolo_giuria);
+end if;
+
+end vincitore;
+/

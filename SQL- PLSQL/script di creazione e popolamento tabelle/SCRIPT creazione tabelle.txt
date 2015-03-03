@@ -1,0 +1,186 @@
+--PROGETTO DI BASI DI DATI
+-- JOSEF VITANOSTRA 0124/224 A.A. 2011/2012
+-- PROFESSORE ANTONIO MARATEA
+
+ALTER SESSION SET NLS_DATE_FORMAT= 'DD-MON-YYYY HH24:MI';
+SET SERVEROUTPUT ON;
+
+--ELIMINAZIONE TABELLE
+
+drop table persona cascade constraint;
+drop table staff cascade constraint;
+drop table premio cascade constraint;
+drop table canzone cascade constraint;
+drop table artista cascade constraint;
+drop table solista cascade constraint;
+drop table band cascade constraint;
+drop table album cascade constraint;
+drop table negozio_musicale cascade constraint;
+drop table buono_spesa cascade constraint;
+drop table num_telefono_negozio cascade constraint;
+drop table serata cascade constraint;
+drop table distributore cascade constraint;
+drop table pacchetto cascade constraint;
+drop table num_telefonico_distributore cascade constraint;
+drop table posto cascade constraint;
+drop table biglietto_venduto cascade constraint;
+drop table giuria_tecnica cascade constraint;
+drop table esibizione cascade constraint;
+drop table giudica_g cascade constraint;
+drop table giudica_p cascade constraint;
+drop table e_autore cascade constraint;
+
+--CREAZIONE TABELLE
+
+create table persona(
+ nome_persona 		VARCHAR2(20),
+ cognome_persona 		VARCHAR2(30),
+ sesso      			CHAR(1)  check(upper(sesso) in ('M','F')),
+ codice_fiscale_persona 	CHAR(16) PRIMARY KEY,
+ data_di_nascita  		DATE);
+
+create table staff(
+ codice_fiscale_staff		CHAR(16) PRIMARY KEY,
+num_tesserino			VARCHAR2(10) unique not null,
+mansione		               		VARCHAR2(30) default 'generica',
+ CONSTRAINT FK_CODF FOREIGN KEY(codice_fiscale_staff) REFERENCES PERSONA(codice_fiscale_persona) on delete cascade);
+
+create table premio(
+    id_premio 	number(3,0) primary key,
+    nome_premio 	varchar(20));
+
+create table canzone(
+    id_canzone 		number(5,0) primary key,
+    id_premio_canzone 	number(3,0) unique,
+    titolo 			varchar(20) not null,
+    genere 			varchar(10),
+    minuti			number(1,0) check(minuti>0 and minuti<5),
+    secondi                     number(2,0) check(secondi >0 and secondi<60),
+    constraint fk_idpremiocanz foreign key(id_premio_canzone) references premio(id_premio) on delete cascade);
+
+create table artista(
+    codice_fiscale_artista 	char(16) primary key,
+    id_canzone_artista 	number not null unique,
+    pass_artista 		number(6,0) unique not null,
+    constraint fk_codfisc foreign key(codice_fiscale_artista) references persona(codice_fiscale_persona) on delete cascade,
+    constraint fk_idcanz foreign key(id_canzone_artista) references canzone(id_canzone) on delete cascade);
+
+CREATE TABLE solista(
+ codice_fiscale_solista	CHAR(16) PRIMARY KEY,
+ GENERE 			VARCHAR2(10),
+ MUSICISTA              	char(2) check(upper(musicista) in('SI','NO')),
+ TIPO_STRUMENTO         	VARCHAR(20), 
+ constraint fk_codfissol FOREIGN KEY(codice_fiscale_solista) REFERENCES ARTISTA(codice_fiscale_artista) on delete cascade);
+                                        
+create table band(
+    codice_fiscale_band 	char(16) primary key,
+    nome_band		varchar(20),    
+    genere 			varchar(10),
+    num_componenti 		number(1,0) not null check (num_componenti>0 and num_componenti<=10),
+    constraint fk_codfiscband foreign key (codice_fiscale_band) references artista(codice_fiscale_artista) on delete cascade);
+
+create table album(
+    id_premio_album 		number(3,0) primary key,
+    titolo_album 		varchar(20) not null,
+    etichetta 		varchar(20),
+    num_brani 		number(2,0) not null check(num_brani>0),
+    constraint fk_idpremalbum foreign key(id_premio_album) references premio(id_premio) on delete cascade);
+
+create table negozio_musicale(
+     P_IVA_negozio 		varchar(11) primary key,
+     via_negozio 		varchar(20),
+     citta_negozio		varchar(20));
+
+create table buono_spesa(
+    id_premio_buono_spesa 	number(3,0) primary key,
+    P_IVA_buono_spesa 	varchar(11) unique,
+    importo 		number not null check(importo>0),
+    constraint fk_idpremiobuon foreign key(id_premio_buono_spesa) references premio(id_premio)on delete cascade,
+    constraint fk_pivaneg foreign key(P_IVA_buono_spesa) references negozio_musicale(P_IVA_negozio)on delete cascade);
+
+create table num_telefono_negozio(
+     p_iva_neg 		varchar(11),
+     numero_telefonico 	number(10,0),
+     primary key(p_iva_neg, numero_telefonico),
+     constraint fk_pivanegozio foreign key(p_iva_neg) references negozio_musicale(P_IVA_negozio)on delete cascade);
+ 
+create table serata(
+     data_serata 		date primary key,
+     id_premio_serata 	number(3,0),
+     via_serata 		varchar(20),
+     citta_serata		varchar(20),
+     constraint fk_idpremioser foreign key (id_premio_serata) references premio(id_premio) on delete cascade);
+
+create table distributore(
+     p_iva_distributore 	varchar(11) primary key,
+     nome_distributore	varchar(20) not null);
+
+create table pacchetto(
+     num_pacchetto 			number(4,0) primary key,
+     p_iva_distributore_pacchetto 	varchar(11) not null, 
+     constraint fk_pivadistrib foreign key(p_iva_distributore_pacchetto) references distributore(p_iva_distributore)on delete cascade);
+
+create table num_telefonico_distributore(
+     p_iva_num_telefonico_dist 			varchar(11),
+     numero_telefonico_distributore 		varchar (20),
+     primary key(p_iva_num_telefonico_dist,numero_telefonico_distributore),
+     constraint fk_pivadist foreign key (p_iva_num_telefonico_dist) references distributore(p_iva_distributore)on delete cascade);
+
+create table posto(
+     num_posto 	number(2,0),
+     num_fila 	number(2,0),
+     primary key( num_posto,num_fila));
+
+create table biglietto_venduto(
+     num_biglietto 			number(4,0) primary key,
+     data_biglietto_venduto 		date not null,              
+     num_posto_biglietto_venduto 	number(2,0),
+     num_fila_biglietto_venduto 		number(2,0),
+     num_pacchetto_biglietto    		number(4,0) not null,
+     constraint fk_databiglietto foreign key(data_biglietto_venduto) references serata(data_serata) on delete cascade,
+     constraint fk_num foreign key( num_posto_biglietto_venduto,num_fila_biglietto_venduto) references posto(num_posto,num_fila) on delete cascade,
+     constraint fk_nump foreign key(num_pacchetto_biglietto) references pacchetto(num_pacchetto)on delete cascade);
+
+create table giuria_tecnica(
+nome_giuria 			varchar(10),
+cognome_giuria 			varchar(20),     
+specializzazione 			varchar(20) primary key,
+codice_fiscale_giuria_tecnica 		char(16) not null,  
+constraint fk_codicefiscgiuria foreign key(codice_fiscale_giuria_tecnica)references persona(codice_fiscale_persona)on delete cascade);
+
+                                         
+create table esibizione(
+         ora_inizio_esibizione 		date not null,
+         id_canzone_esibizione 		number(5,0),
+         data_esibizione 		date,
+         constraint pk_esib primary key(ora_inizio_esibizione,data_esibizione),
+         constraint fk_dataesib foreign key(data_esibizione) references serata(data_serata)on delete cascade,
+         constraint fk_idcanzone_esib foreign key (id_canzone_esibizione)references canzone(id_canzone)on delete cascade);
+
+create table giudica_g(
+        specializzazione_giudica_g 	varchar(20),
+        ora_inizio_giudica_g 		date,
+        data_giudica_g 		date,
+        voto_giudica_g 		number(2,0) not null  check (voto_giudica_g>0 and voto_giudica_g<=10),
+        primary key(specializzazione_giudica_g,ora_inizio_giudica_g,data_giudica_g),
+        constraint fk_spec foreign key(specializzazione_giudica_g) references giuria_tecnica(specializzazione) on delete cascade,
+        constraint fk_ora_g foreign key(ora_inizio_giudica_g,data_giudica_g) references esibizione(ora_inizio_esibizione,data_esibizione) on delete cascade);
+	
+create table giudica_p(
+        ora_inizio_giudica_p 		date,
+        num_posto_giudica_p 		number(2,0),
+        num_fila_giudica_p 		number(2,0),
+        data_giudica_p 		date,
+        voto_giudica_p 		number(2,0) not null check (voto_giudica_p>0 and voto_giudica_p<=10),
+        primary key(num_posto_giudica_p,ora_inizio_giudica_p,num_fila_giudica_p,data_giudica_p),
+        constraint fk_num_p foreign key(num_posto_giudica_p,num_fila_giudica_p) references posto(num_posto,num_fila) on delete cascade,
+        constraint fk_ora_p foreign key(ora_inizio_giudica_p,data_giudica_p) references esibizione(ora_inizio_esibizione,data_esibizione) on delete cascade);
+
+create table e_autore(
+    codice_fiscale_e_autore 		char(16),
+    id_canzone_e_autore 		number(5,0),
+    primary key( codice_fiscale_e_autore, id_canzone_e_autore),
+    constraint fk_codice_fiscale_autore foreign key(codice_fiscale_e_autore) references persona(codice_fiscale_persona) on delete cascade,
+    constraint fk_id_canzone_autore foreign key(id_canzone_e_autore) references canzone(id_canzone) on delete cascade);
+
+--FINE CREAZIONE TABELLE
