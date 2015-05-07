@@ -1,0 +1,83 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#==============================================================================
+#title           :jAPI.py
+#description     :Api per l'aggiornamento dei places sul portale meteo.uniparthenope
+#author          :Josef Vitanostra
+#date            :2015-05-07
+#version         :1
+#python_version  :2.7  
+#==============================================================================
+import sys,pycurl,time, urllib,urllib2,cookielib,requests,json
+from pprint import pprint
+
+def login():
+    #curl -v -d "method=user.login&username=place&password=Montella2015*" http://192.167.9.43/test/user/login
+    URL = "http://192.167.9.43/test/user/login"
+    username = 'place'
+    password = 'Montella2015*'
+
+    cj = cookielib.CookieJar()
+    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+    login_data = urllib.urlencode({'username' : username, 'password' : password})
+    resp = opener.open('http://192.167.9.43/test/user/login', login_data)
+    return resp
+
+def create_node(resp,place):
+    #curl -H "Cookie: SESSa7526eb3825704e9f4a5e85bd21b2c49=0ilwwkCsLc5oqYxL8HPmVmZMj0gvAb_xVXHnKboEPQM"
+    #-H "X-CSRF-Token: QsG1oyP5UCpmA_jmSOEdvRw51sViRBTj6kMiAJ0QMXY" -v -X POST
+    #-d "method=node.create&title=testnode&type=ccmmma_place&field_bounds[und][0][geom][top]=2
+    #&format=full_html&field_bounds[und][0][geom][right]=2&field_bounds[und][0][geom][bottom]=2
+    #&field_bounds[und][0][geom][left]=2" http://192.167.9.43/test/node
+    URL = "http://192.167.9.43/test/node"
+    dati = json.loads(resp.read())
+    #recupero informazioni per l'autenticazione
+    token = dati['token']
+    sessid = dati['sessid']
+    session_name = dati['session_name']
+    #recupero i campi da inserire nella query 
+    top_field = str(place['maxLat'])
+    right_field = str(place['maxLon'])
+    bottom_field = str(place['minLat'])
+    left_field = str(place['minLon'])
+    id_field = place['id']
+    title_field = place['name']['it']
+    domain_field = place['domains'][0]
+    
+    c = pycurl.Curl()
+    c.setopt(pycurl.URL, URL)
+    c.setopt(pycurl.HTTPHEADER, ['X-CSRF-Token: '+token,'Cookie: '+session_name+'='+sessid])
+    c.setopt(pycurl.POST, 1)
+    c.setopt(pycurl.POSTFIELDS, 'method=node.create&title='+title_field+'&type=ccmmma_place&field_domain[und][0][value]='+domain_field+'&field_id[und][0][value]='+id_field+'&field_bounds[und][0][geom][top]='+top_field+'&format=full_html&field_bounds[und][0][geom][right]='+right_field+'&field_bounds[und][0][geom][bottom]='+bottom_field+'&field_bounds[und][0][geom][left]='+left_field)
+    c.setopt(pycurl.VERBOSE, True)
+    c.perform()
+    sys.exit()
+    
+    
+if __name__=="__main__":
+    
+    #recupero le informazioni riguardanti i places dal file places.json e li salòvo in un array associativo
+    urlPlaces = "https://web.uniparthenope.it/~0124000224/places.json"
+    responsePlaces = urllib.urlopen(urlPlaces);
+    dataPlaces = json.loads(responsePlaces.read())
+	 
+    #per ogni places nel file di riferimento controllo se è presente nel DB drupal del sito
+    response = urllib2.urlopen('http://192.167.9.43/test/node.json/?parameters[type]=ccmmma_place')
+    dataPlace = json.loads(response.read()) 
+
+    
+    for i in dataPlace:
+        for j in dataPlaces:
+            if not(dataPlaces[j]['name']['it'] == i['title']):
+                risp = login()
+                create_node(risp,dataPlaces[j])
+                
+                
+#for i in dataPlaces:
+ #   url = "http://meteo.uniparthenope.it/openapi/v3/places/get/byid/"+i
+  #  response = urllib.urlopen(url);
+   # data = json.loads(response.read())
+
+
+
+
