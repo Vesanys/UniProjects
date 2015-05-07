@@ -51,7 +51,7 @@ def create_node(resp,place):
     c.setopt(pycurl.POSTFIELDS, 'method=node.create&title='+title_field+'&type=ccmmma_place&field_domain[und][0][value]='+domain_field+'&field_id[und][0][value]='+id_field+'&field_bounds[und][0][geom][top]='+top_field+'&format=full_html&field_bounds[und][0][geom][right]='+right_field+'&field_bounds[und][0][geom][bottom]='+bottom_field+'&field_bounds[und][0][geom][left]='+left_field)
     c.setopt(pycurl.VERBOSE, True)
     c.perform()
-    sys.exit()
+    
     
     
 if __name__=="__main__":
